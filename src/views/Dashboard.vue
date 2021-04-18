@@ -42,7 +42,7 @@
             <div class="px-6 py-4">
               <h4 class="mb-3 text-xl font-semibold tracking-tight text-gray-800">{{ product.title }}</h4>
               <p class="mb-3 text-sm font-semibold tracking-tight mb-2">{{ product.category }}</p>
-              <p class="leading-normal text-gray-700"><b>${{product.price}}</b></p>
+              <p class="leading-normal text-gray-700"><b>Rp {{product.priceFormat}}</b></p>
               <button 
                 @click="handleAddToCart(product)"
                 class="mt-3 text-sm font-semibold bg-green-700 w-full text-white px-6 py-3 block shadow-xl hover:text-white hover:bg-indigo-900">

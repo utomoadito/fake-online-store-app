@@ -1,4 +1,6 @@
 import { apiProduct } from '../utils/api'
+import { usdToIdr } from '../utils/format'
+import numeral from 'numeral'
 
 const state = () => ({
     products: []
@@ -13,6 +15,8 @@ const actions = {
         apiProduct.get('products').then(res => {
             let productsData = []
             res.map(data => {
+                data.price = usdToIdr(data.price)
+                data.priceFormat = numeral(data.price).format('0,0')
                 data.weight = 1000.0
                 data.seller = {
                     "id": 1,

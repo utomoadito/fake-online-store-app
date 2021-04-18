@@ -1,9 +1,21 @@
+import numeral from 'numeral'
+import { apiRajaOngkir } from '../utils/api'
+
 const state = () => ({
-    carts: []
+    carts: [],
+    subtotal: {
+        count: 0,
+        format: ''
+    },
+    total: 0,
+    deliveryProvince: []
 })
 
 const getters = {
-    carts: state => state.carts
+    carts: state => state.carts,
+    subtotal: state => state.subtotal,
+    total: state => state.total,
+    deliveryProvince: state => state.deliveryProvince
 }
 
 const actions = {
@@ -23,6 +35,20 @@ const actions = {
     removeProductFromCart({ commit }, payload) {
         payload.qty -= 1
         commit('setItemQtyInCart', payload)
+    },
+    countSubtotal({ commit, getters }) {
+        let total = 0
+        getters.carts.map(item => {
+            const totalPerItem = item.price * item.qty
+            total += totalPerItem
+        })
+        const format = numeral(total).format('0,0')
+        commit('setCountSubtotal', { total, format })
+    },
+    fetchAllDeliveryProvince({ commit }) {
+        apiRajaOngkir.get('province').then(res => {
+            commit('setDeliveryProvince', res.results)
+        })
     }
 }
 
@@ -40,6 +66,13 @@ const mutations = {
                 }
             }
         })
+    },
+    setCountSubtotal: (state, val) => {
+        state.subtotal.number = val.total
+        state.subtotal.format = val.format
+    },
+    setDeliveryProvince: (state, payload) => {
+        state.deliveryProvince = payload
     }
 }
 
