@@ -51,11 +51,43 @@
                     <div class="flex text-black text-lg p-2">
                       <div class="relative inline-block w-full text-gray-700">
                         <select 
+                          v-model="courier"
+                          class="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border appearance-none focus:shadow-outline"
+                          placeholder="Pilih Kurir">
+                          <option value="" selected>Pilih Kurir</option>
+                          <option value="jne">JNE</option>
+                          <option value="pos">POS</option>
+                          <option value="tiki">TIKI</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex text-black text-lg p-2">
+                      <div class="relative inline-block w-full text-gray-700">
+                        <select 
+                          @change="onChangeProvince"
                           v-model="province"
                           class="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border appearance-none focus:shadow-outline"
                           placeholder="Pilih Provinsi">
                           <option value="" selected>Pilih Provinsi</option>
                           <option v-for="(province, index) in deliveryProvince" :key="index" :value="province.province_id">{{ province.province }}</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="deliveryCity.length > 0" class="flex text-black text-lg p-2">
+                      <div class="relative inline-block w-full text-gray-700">
+                        <select
+                          @change="onChangeCity"
+                          v-model="city"
+                          class="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border appearance-none focus:shadow-outline"
+                          placeholder="Pilih Kota/Kabupaten">
+                          <option value="" selected>Pilih Kota/Kabupaten</option>
+                          <option v-for="(city, index) in deliveryCity" :key="index" :value="city.city_id">{{ city.city_name }}</option>
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                           <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
@@ -78,6 +110,8 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
   name: 'PaymentModal',
   props: {
@@ -88,12 +122,43 @@ export default {
   },
   data () {
     return {
-      province: ''
+      province: '',
+      city: '',
+      courier: ''
     }
   },
+  computed: {
+    ...mapGetters(['deliveryCity', 'deliveryService'])
+  },
   methods: {
+    ...mapActions(['getDeliveryCity', 'getDeliveryService']),
     onClickCancel() {
+      this.courier = ''
+      this.province = ''
+      this.city = ''
+      this.$store.commit('setDeliveryProvince', [])
+      this.$store.commit('setDeliveryCity', [])
       this.$emit('onClickCancel', false)
+    },
+    onChangeProvince() {
+      if (this.province == '') {
+        this.$store.commit('setDeliveryCity', [])
+      } else {
+        this.getDeliveryCity(this.province)
+      }
+    },
+    onChangeCity() {
+      let payload = {
+        origin: this.carts[0].seller.city_id,
+        destination: this.city,
+        courier: this.courier
+      }
+      let weightTotal = 0
+      this.carts.map(val => {
+        weightTotal += val.weight * val.qty
+      })
+      payload.weight = weightTotal
+      this.getDeliveryService(payload)
     }
   }
 }

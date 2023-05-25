@@ -1,7 +1,8 @@
 import axios from 'axios'
+// import request from 'request'
 
-const apiProduct = (function () {
-    function processRequest(request) {
+const apiProduct = (() => {
+    const processRequest = (request) => {
 		return new Promise((resolve, reject) => {
 			request.then(response => {
                 resolve(response.data)
@@ -11,13 +12,13 @@ const apiProduct = (function () {
 		})
 	}
 
-	function mergeEndpoint(endpoint) {
-		return process.env.VUE_APP_FAKE_API + endpoint
-	}
+	const http = axios.create({
+		baseURL: process.env.VUE_APP_FAKE_API
+	})
 
-    function get(endpoint) {
+    const get = (endpoint) => {
 		return processRequest(
-			axios.get(mergeEndpoint(endpoint), {})
+			http.get(endpoint)
 		)
 	}
 
@@ -25,12 +26,8 @@ const apiProduct = (function () {
 
 })()
 
-const apiRajaOngkir = (function () {
-	// const headers = {
-	// 	key: process.env.VUE_APP_RAJAONGKIR_API_KEY
-	// }
-
-    function processRequest(request) {
+const apiRajaOngkir = (() => {
+    const processRequest = (request) => {
 		return new Promise((resolve, reject) => {
 			request.then(response => {
                 resolve(response.data)
@@ -40,22 +37,39 @@ const apiRajaOngkir = (function () {
 		})
 	}
 
-	function mergeEndpoint(endpoint) {
-		return process.env.VUE_APP_RAJAONGKIR_API + endpoint
-	}
+	// This endpoint API refer to localhost server that already handle Rajaongkir API
+	// Because Rajaongkir API doesn't allow fetch their API from client side / front-end and using AJAX
+	const http = axios.create({
+		baseURL: 'http://localhost:8000/rajaongkir/'
+	})
 
-    function get(endpoint) {
+    const get = (endpoint) => {
 		return processRequest(
-			axios.get(mergeEndpoint(endpoint), {
-				headers: {
-					'key': process.env.VUE_APP_RAJAONGKIR_API_KEY,
-					'Content-Type': 'application/x-www-form-urlencoded'
-				}
-			})
+			http.get(endpoint)
 		)
 	}
 
-    return { get }
+    // const get = () => {
+	// 	return new Promise((resolve, reject) => { //eslint-disable-line
+	// 		const options = {
+	// 			method: 'GET',
+	// 			url: 'https://api.rajaongkir.com/starter/province',
+	// 			headers: {key: '1520799914d6529c7afebfb14e55abaa', 'Access-Control-Allow-Origin' : 'http://localhost/'}
+	// 		}
+	// 		request(options, function (error, response, body) {//eslint-disable-line
+	// 			if (error) throw new Error(error)
+	// 			resolve(body)
+	// 		})
+	// 	})
+	// }
+
+	const post = (endpoint, payload) => {
+		return processRequest(
+			http.post(endpoint, payload)
+		)
+	}
+
+    return { get, post }
 
 })()
 

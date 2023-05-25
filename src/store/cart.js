@@ -8,14 +8,18 @@ const state = () => ({
         format: ''
     },
     total: 0,
-    deliveryProvince: []
+    deliveryProvince: [],
+    deliveryCity: [],
+    deliveryService: []
 })
 
 const getters = {
     carts: state => state.carts,
     subtotal: state => state.subtotal,
     total: state => state.total,
-    deliveryProvince: state => state.deliveryProvince
+    deliveryProvince: state => state.deliveryProvince,
+    deliveryCity: state => state.deliveryCity,
+    deliveryService: state => state.deliveryService
 }
 
 const actions = {
@@ -47,7 +51,18 @@ const actions = {
     },
     fetchAllDeliveryProvince({ commit }) {
         apiRajaOngkir.get('province').then(res => {
-            commit('setDeliveryProvince', res.results)
+            commit('setDeliveryProvince', res.rajaongkir.results)
+        })
+    },
+    getDeliveryCity({ commit }, id) {
+        apiRajaOngkir.get('city?province=' + id).then(res => {
+            commit('setDeliveryCity', res.rajaongkir.results)
+        })
+    },
+    getDeliveryService({ commit }, payload) {
+        console.log(payload)
+        apiRajaOngkir.post('cost', payload).then(res => {
+            commit('setDeliveryService', res.rajaongkir.results)
         })
     }
 }
@@ -73,6 +88,12 @@ const mutations = {
     },
     setDeliveryProvince: (state, payload) => {
         state.deliveryProvince = payload
+    },
+    setDeliveryCity: (state, payload) => {
+        state.deliveryCity = payload
+    },
+    setDeliveryService: (state, payload) => {
+        state.deliveryService = payload
     }
 }
 
